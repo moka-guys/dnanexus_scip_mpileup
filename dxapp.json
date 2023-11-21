@@ -1,0 +1,107 @@
+{
+  "name": "mpileup_v1.0.0",
+  "title": "mpileup_v1.0.0",
+  "summary": "mpileup v1.0.0",
+  "tags": [
+    "coverage"
+  ],
+  "properties": {
+    "github release": "v1.0.0"
+  },
+  "dxapi": "1.0.0",
+  "inputSpec": [
+    {
+      "name": "bam_file",
+      "label": "Bam file",
+      "help": "The aligned bam file",
+      "class": "file",
+      "patterns": ["*.bam"],
+      "optional": false
+    },
+    {
+      "name": "bed_file",
+      "label": "Bed file",
+      "help": "bed file to calculate mpileup over",
+      "class": "file",
+      "patterns": ["*.bed"],
+      "optional": false
+    },
+    {
+      "name": "ref_genome",
+      "label": "reference genome",
+      "help": "reference genome",
+      "class": "file",
+      "optional": false,
+      "suggestions": [
+        {
+          "name": "hs37d5.fasta-index.tar.gz",
+          "value": 
+            {
+              "$dnanexus_link": 
+              {
+                "project": "project-ByfFPz00jy1fk6PjpZ95F27J",
+                "id": "file-ByYgX700b80gf4ZY1GxvF3Jv"
+              }
+            }
+        }
+      ]
+    },
+    {
+      "name": "min_MQ",
+      "label": "samtools_mpileup_min_map_qual",
+      "help": "Minimum mapping quality for an alignment to be used in mpileup (-q)",
+      "class": "string",
+      "optional": true, 
+      "default": "20",
+      "group": "samtools mpileup"
+     },
+     {
+      "name": "min_BQ",
+      "label": "Minimum base quality for mpileup and varscan",
+      "help": "Minimum base quality for an base to be considered (mpileup -Q and varscan --min_avg_qual)",
+      "class": "string",
+      "optional": true,      
+      "default": "15",
+      "group": "samtools mpileup"
+     },
+     {
+      "name": "mpileup_extra_opts",
+      "label": "samtools_mpileup_extra_opts",
+      "help": "any extra options",
+      "class": "string",
+      "optional": true,      
+      "group": "samtools mpileup"
+     },
+     {
+      "name": "skip",
+      "label": "skip",
+      "help": "Skip this step if not required",
+      "class": "boolean",
+      "default": true,
+      "optional": false
+	  }
+    ],
+  "outputSpec": [
+    {
+      "name": "mpileup_file",
+      "label": "mpileup file",
+      "help": "Output Samtools mpileup file used by varscan.",
+      "class": "file",
+      "optional": true
+    }
+  ],
+  "runSpec": {
+    "version":"0",
+	"execDepends": [
+    ],
+    "systemRequirements": {
+      "main": {
+        "instanceType": "mem1_ssd1_v2_x4"
+      }
+    },
+    "distribution" : "Ubuntu",
+    "release" : "20.04",
+    "file": "src/code.sh",
+    "interpreter": "bash"
+  }
+}
