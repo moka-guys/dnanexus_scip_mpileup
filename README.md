@@ -36,3 +36,6 @@ For further information on the mpileup format please see the [Documentation](htt
     - count of every insertion or deletion that begins at this position (+ or -)
     - count of all deleted bases at that position (*)
     - count of the final bases in the read (^)
+
+
+This applet was developed by Synnovis Genome Informatics
