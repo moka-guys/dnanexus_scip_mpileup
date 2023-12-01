@@ -10,7 +10,7 @@ if [ $skip == false ];
 	dx-download-all-inputs --except ref_genome --parallel
 
 	# make output folders
-	mkdir -p ~/out/mpileup_file/coverage/mpileup/ ./genome
+	mkdir -p ~/out/mpileup_file/coverage/mpileup/ ~/out/mpileup_calcs/coverage/mpileup_calcs/ ./genome
 
 	# make directory for reference genome and unpackage the reference genome
 	dx cat "$ref_genome" | tar zxvf - -C genome  
@@ -28,9 +28,6 @@ if [ $skip == false ];
 	elif [[ $ref_genome_name =~ .*38.* ]]
 	then
 		genomebuild="grch38"
-	elif [[ $ref_genome_name =~ .*20.* ]]
-	then
-		genomebuild="hg20"
 	else
 		echo "$ref_genome_name does not contain a parsable reference genome name"
 	fi
@@ -39,7 +36,7 @@ if [ $skip == false ];
 	mv genome/*.fa  genome/$genomebuild.fa
 	mv genome/*.fa.fai  genome/$genomebuild.fa.fai
 	# capture the fasta file as a variable for mpileup
-	genome_file=`ls genome/*.fa`
+	genome_file="genome/*.fa"
 
 	# build the argument string, including the optional inputs if required 
 	# -a outputs all bases, even is 0 coverage
@@ -58,11 +55,19 @@ if [ $skip == false ];
 	if [ "$mpileup_extra_opts" != "" ]; then
 	mpileup_opts="$mpileup_opts $mpileup_extra_opts"
 	fi
-	# generate an mpileup from bam file
-	samtools mpileup -f $genome_file $mpileup_opts $bam_file_path > out/mpileup_file/coverage/mpileup/$bam_file_prefix.mpileup
+	echo $mpileup_opts
+
+	for (( i=0; i<${#bam_file[@]}; i++ ))
+	do
+		# generate an mpileup from bam file
+		samtools mpileup -f $genome_file $mpileup_opts -o out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}.mpileup ${bam_file_path[i]}
+		#calculate summary statistics if required
+		if [ $mpileup_summary_calcs == true ]; 
+		then 
+			python3 mpileup_counts.py out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}.mpileup out/mpileup_calcs/coverage/mpileup_calcs/${bam_file_prefix[i]}.mpileup.calcs
+		fi
+	done
 fi
 
-
-# upload outpu
+# upload outputs
 dx-upload-all-outputs --parallel
-

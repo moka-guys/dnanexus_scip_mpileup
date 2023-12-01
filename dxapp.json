@@ -13,8 +13,8 @@
     {
       "name": "bam_file",
       "label": "Bam file",
-      "help": "The aligned bam file",
-      "class": "file",
+      "help": "1 or more aligned bam files",
+      "class": "array:file",
       "patterns": ["*.bam"],
       "optional": false
     },
@@ -61,7 +61,7 @@
       "help": "Minimum base quality for an base to be considered (mpileup -Q and varscan --min_avg_qual)",
       "class": "string",
       "optional": true,      
-      "default": "15",
+      "default": "10",
       "group": "samtools mpileup"
      },
      {
@@ -71,6 +71,14 @@
       "class": "string",
       "optional": true,      
       "group": "samtools mpileup"
+     },
+     {
+      "name": "mpileup_summary_calcs",
+      "label": "mpileup summary calculations",
+      "help": "run script to generate summary of the mpileup data, e.g. coverage, base calls at each position",
+      "class": "boolean",
+      "default": true,
+      "optional": false
      },
      {
       "name": "skip",
@@ -86,13 +94,20 @@
       "name": "mpileup_file",
       "label": "mpileup file",
       "help": "Output Samtools mpileup file used by varscan.",
-      "class": "file",
+      "class": "array:file",
+      "optional": true
+    },
+    {
+      "name": "mpileup_calcs",
+      "label": "mpileup calculations",
+      "help": "summary statistics calculated on the mpileup file using mpileup_calcs.py",
+      "class": "array:file",
       "optional": true
     }
   ],
   "runSpec": {
-    "version":"0",
-	"execDepends": [
+    "execDepends": [
+    {"name": "samtools", "version": "1.10-3"}
     ],
     "systemRequirements": {
       "main": {
@@ -101,6 +116,7 @@
     },
     "distribution" : "Ubuntu",
     "release" : "20.04",
+    "version":"0",
     "file": "src/code.sh",
     "interpreter": "bash"
   }
