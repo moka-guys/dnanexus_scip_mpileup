@@ -13,8 +13,8 @@
 # see http://www.htslib.org/doc/samtools-mpileup.html for detailed explanation of the mpileup outputs
 
 # This script takes two inputs
-# 1: input filename/path
-# 2: output filename/path
+# 1: input filepath/filename
+# 2: output filepath/filename
 ###
 
 import sys
