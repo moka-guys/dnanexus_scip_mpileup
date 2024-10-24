@@ -38,30 +38,57 @@ if [ $skip == false ];
 	# capture the fasta file as a variable for mpileup
 	genome_file="genome/*.fa"
 
-	# build the argument string, including the optional inputs if required 
+	# build the argument string for the HBB mpileup, including the optional inputs if required 
 	# -a outputs all bases, even is 0 coverage
 	# -B disables BAQ
 	# -d max number of reads to count (saves memory - set very high to override default)
-	mpileup_opts="-a -B -d 500000"
+	mpileup_opts_hbb="-a -B -d 500000"
 	if [ "$min_MQ" != "" ]; then
-	mpileup_opts="$mpileup_opts -q $min_MQ"
+	mpileup_opts_hbb="$mpileup_opts_hbb -q $min_MQ"
 	fi
 	if [ "$min_BQ" != "" ]; then
-	mpileup_opts="$mpileup_opts -Q $min_BQ"
+	mpileup_opts_hbb="$mpileup_opts_hbb -Q $min_BQ"
 	fi
-	if [ "$bed_file" != "" ]; then
-	mpileup_opts="$mpileup_opts -l $bed_file_path"
+	if [ "$hbb_bed_file" != "" ]; then
+	mpileup_opts_hbb="$mpileup_opts_hbb -l $bed_file_path"
 	fi
 	if [ "$mpileup_extra_opts" != "" ]; then
-	mpileup_opts="$mpileup_opts $mpileup_extra_opts"
+	mpileup_opts_hbb="$mpileup_opts_hbb $mpileup_extra_opts"
 	fi
-	echo $mpileup_opts
+	echo $mpileup_opts_hbb
+
+	# build the argument string for the SCED mpileup, including the optional inputs if required 
+	# -a outputs all bases, even is 0 coverage
+	# -B disables BAQ
+	# -d max number of reads to count (saves memory - set very high to override default)
+	mpileup_opts_sced="-a -B -d 500000"
+	if [ "$min_MQ" != "" ]; then
+	mpileup_opts_sced="$mpileup_opts_sced -q $min_MQ"
+	fi
+	if [ "$min_BQ" != "" ]; then
+	mpileup_opts_sced="$mpileup_opts_sced -Q $min_BQ"
+	fi
+	if [ "$sced_bed_file" != "" ]; then
+	mpileup_opts_sced="$mpileup_opts_sced -l $bed_file_path"
+	fi
+	if [ "$mpileup_extra_opts" != "" ]; then
+	mpileup_opts_sced="$mpileup_opts_sced $mpileup_extra_opts"
+	fi
+	echo $mpileup_opts_sced
 
 	for (( i=0; i<${#bam_file[@]}; i++ ))
 	do
-		# generate an mpileup from bam file
-		samtools mpileup -f $genome_file $mpileup_opts -o out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}.mpileup ${bam_file_path[i]}
-		#calculate summary statistics if required
+		# filter the input bam file to include reads where the insert value is 155bp or less
+		samtools view -h ${bam_file_path[i]} | awk 'substr($0,1,1)=="@" || ($9>=0 && $9<=155) || ($9<=0 && $9>=-155)' | samtools view -b -o out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}_155bp.bam 
+		# generate an mpileup from bam file using hbb bed file
+		samtools mpileup -f $genome_file $mpileup_opts_hbb -o out/mpileup_file/coverage/mpileup/HBB_${bam_file_prefix[i]}_155bp.mpileup out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}_155bp.bam 
+		
+		# generate an mpileup from the bam file using the sced bed file
+		samtools mpileup -f $genome_file $mpileup_opts_sced -o out/mpileup_file/coverage/mpileup/SCED_${bam_file_prefix[i]}_155bp.mpileup out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}_155bp.bam 
+		
+
+		#calculate summary statistics if required 
+		#needs modifying? which bam being considered?
 		if [ $mpileup_summary_calcs == true ]; 
 		then 
 			python3 mpileup_counts.py out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}.mpileup out/mpileup_calcs/coverage/mpileup_calcs/${bam_file_prefix[i]}.mpileup.calcs

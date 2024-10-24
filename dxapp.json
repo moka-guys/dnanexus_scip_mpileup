@@ -1,7 +1,7 @@
 {
-  "name": "mpileup_v1.0.0",
-  "title": "mpileup_v1.0.0",
-  "summary": "mpileup v1.0.0",
+  "name": "mpileup_scip_v1.0.0",
+  "title": "mpileup_scip_v1.0.0",
+  "summary": "mpileup_scip_v1.0.0",
   "tags": [
     "coverage"
   ],
@@ -19,9 +19,17 @@
       "optional": false
     },
     {
-      "name": "bed_file",
-      "label": "Bed file",
-      "help": "bed file to calculate mpileup over",
+      "name": "hbb_bed_file",
+      "label": "HBB Bed file",
+      "help": "bed file to calculate mpileup over the HBB gene",
+      "class": "file",
+      "patterns": ["*.bed"],
+      "optional": false
+    },
+    {
+      "name": "sced_bed_file",
+      "label": "Sickle cell alleles Bed file",
+      "help": "bed file to calculate mpileup over the SCED sickle cell alleles",
       "class": "file",
       "patterns": ["*.bed"],
       "optional": false
