@@ -50,7 +50,7 @@ if [ $skip == false ];
 	mpileup_opts_hbb="$mpileup_opts_hbb -Q $min_BQ"
 	fi
 	if [ "$hbb_bed_file" != "" ]; then
-	mpileup_opts_hbb="$mpileup_opts_hbb -l $bed_file_path"
+	mpileup_opts_hbb="$mpileup_opts_hbb -l $hbb_bed_file_path"
 	fi
 	if [ "$mpileup_extra_opts" != "" ]; then
 	mpileup_opts_hbb="$mpileup_opts_hbb $mpileup_extra_opts"
@@ -69,7 +69,7 @@ if [ $skip == false ];
 	mpileup_opts_sced="$mpileup_opts_sced -Q $min_BQ"
 	fi
 	if [ "$sced_bed_file" != "" ]; then
-	mpileup_opts_sced="$mpileup_opts_sced -l $bed_file_path"
+	mpileup_opts_sced="$mpileup_opts_sced -l $sced_bed_file_path"
 	fi
 	if [ "$mpileup_extra_opts" != "" ]; then
 	mpileup_opts_sced="$mpileup_opts_sced $mpileup_extra_opts"
@@ -78,13 +78,24 @@ if [ $skip == false ];
 
 	for (( i=0; i<${#bam_file[@]}; i++ ))
 	do
+
+		# generate mpileup files from the non-truncated bam files.
+		# hbb file
+		samtools mpileup -f $genome_file $mpileup_opts_hbb -o out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}_HBB.mpileup ${bam_file_path[i]}
+		
+		# sced file
+		samtools mpileup -f $genome_file $mpileup_opts_sced -o out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}_SCED.mpileup ${bam_file_path[i]} 
+		
+
 		# filter the input bam file to include reads where the insert value is 155bp or less
 		samtools view -h ${bam_file_path[i]} | awk 'substr($0,1,1)=="@" || ($9>=0 && $9<=155) || ($9<=0 && $9>=-155)' | samtools view -b -o out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}_155bp.bam 
 		# generate an mpileup from bam file using hbb bed file
-		samtools mpileup -f $genome_file $mpileup_opts_hbb -o out/mpileup_file/coverage/mpileup/HBB_${bam_file_prefix[i]}_155bp.mpileup out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}_155bp.bam 
-		
+		samtools mpileup -f $genome_file $mpileup_opts_hbb -o out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}_HBB_155bp.mpileup out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}_155bp.bam 
+
+
+
 		# generate an mpileup from the bam file using the sced bed file
-		samtools mpileup -f $genome_file $mpileup_opts_sced -o out/mpileup_file/coverage/mpileup/SCED_${bam_file_prefix[i]}_155bp.mpileup out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}_155bp.bam 
+		samtools mpileup -f $genome_file $mpileup_opts_sced -o out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}_SCED_155bp.mpileup out/mpileup_file/coverage/mpileup/${bam_file_prefix[i]}_155bp.bam 
 		
 
 		#calculate summary statistics if required 
